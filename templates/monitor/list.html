@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<table class="table">
+<thead>
+<th>Slot</th>
+</thead>
+<tbody>
+{% for slot in slots %}
+<tr>
+    <td>
+        <a href="{% url 'monitor:detail' slot.id %}">
+            {{ slot }}
+        </a>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<a class="btn btn-outline-primary" href="{% url 'admin:monitor_slot_add' %}">Add</a>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<p class="lead">Slot: {{ slot.name }}</p>
+<table class="table">
+<thead>
+<th>#</th>
+<th>Value</th>
+<th>Time</th>
+</thead>
+<tbody>
+{% for value in slot.values %}
+<tr>
+    <td>
+        {{ forloop.counter }}
+    </td>
+    <td>
+        {{ value.value }}
+    </td>
+    <td>
+        {{ value.time }}
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
