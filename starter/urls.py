@@ -4,8 +4,10 @@ from django.urls import path
 from .views import *
 
 
-appname = 'monitor'
+app_name = 'starter'
 
 urlpatterns = [
-    # path('', admin.site.urls),
+    path('', index, name='index'),
+    path('start', start, name='start'),
+    path('up', up, name='up'),
 ]

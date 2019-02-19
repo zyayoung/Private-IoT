@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<p class="lead">Welcome!</p>
+
+<p>System has been {{ state }} for <span id="time_passed"></span>.</p>
+{% if request.user.is_authenticated %}
+<a class="btn btn-outline-primary" href="{% url 'starter:start' %}"><i class="fa fa-power-off"></i> </a>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script>
+    var start_time = new Date() - new Date({{ last_update_passed }});
+    var now = new Date();
+    var time = now - start_time;
+    function update_time(){
+        now = new Date();
+        time = new Date(now - start_time);
+        $("#time_passed").html(Math.floor(time/3600000) + ' days '+time.getUTCHours()+' hours '+time.getUTCMinutes()+' minutes '+time.getUTCSeconds()+' seconds ');
+    }
+    update_time();
+    setInterval("update_time();", 1000);
+</script>
+{% endblock %}

@@ -1,5 +1,5 @@
 from django.db import models
-
+import time
 
 class Slot(models.Model):
     name = models.CharField(max_length=64)
@@ -7,8 +7,17 @@ class Slot(models.Model):
     def __str__(self):
         return self.name
 
-    def values(self):
+    def data(self):
         return Data.objects.filter(slot=self)
+
+    def full_data(self):
+        data = []
+        for value in self.data():
+            data.append(['%.3f' % value.time.timestamp(), value.value])
+        return data
+
+    def max_time(self):
+        return '%.3f' % time.time()
 
 
 class Data(models.Model):
