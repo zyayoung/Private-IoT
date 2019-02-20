@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import Http404, HttpResponse
+from django.views import generic
 import time, datetime
 from .models import LogTime
 import datetime
+import threading as td
 
 sys_state = "down"
 update_time = time.time()
@@ -23,16 +25,49 @@ def update_sys_state(state):
         update_time = time.time()
 
 
-def index(request):
-    global sys_state, update_time, heartbeat_time
-
+def check_up(wait=0):
+    if wait:
+        time.sleep(wait)
     # Update sys state
-    if time.time() - heartbeat_time > 90:
+    global heartbeat_time
+    if time.time() - heartbeat_time > 150:
         update_sys_state("down")
 
-    state = sys_state
-    last_update_passed = 1000 * (time.time() - update_time)
-    return render(request, 'index.html', locals())
+
+def check_daemon():
+    while True:
+        check_up(60)
+
+
+check_t = td.Thread(target=check_daemon, daemon=True)
+check_t.start()
+
+
+class Index(generic.View):
+    def get(self, request):
+        global sys_state, update_time, heartbeat_time
+
+        # Update sys state
+        check_up()
+
+        state = sys_state
+        last_update_passed = 1000 * (time.time() - update_time)
+        return render(request, 'index.html', locals())
+
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return HttpResponse('Not authenticated')
+        global sys_state, update_time, heartbeat_time
+        if sys_state == "down":
+            update_sys_state("starting")
+            heartbeat_time = time.time()
+            import RPi.GPIO as GPIO
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(18, GPIO.OUT, initial=GPIO.LOW)
+            GPIO.output(18, GPIO.HIGH)
+            time.sleep(0.8)
+            GPIO.output(18, GPIO.LOW)
+        return redirect('starter:index')
 
 
 def up(request):
@@ -40,13 +75,3 @@ def up(request):
     heartbeat_time = time.time()
     update_sys_state("up")
     return HttpResponse("OK")
-
-
-def start(request):
-    if not request.user.is_authenticated:
-        raise Http404
-    global sys_state, update_time, heartbeat_time
-    if sys_state == "down":
-        update_sys_state("starting")
-        heartbeat_time = time.time()
-    return redirect('starter:index')

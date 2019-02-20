@@ -7,7 +7,6 @@ from .views import *
 app_name = 'starter'
 
 urlpatterns = [
-    path('', index, name='index'),
-    path('start', start, name='start'),
+    path('', Index.as_view(), name='index'),
     path('up', up, name='up'),
 ]
