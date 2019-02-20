@@ -10,6 +10,8 @@ class Slot(models.Model):
     max = models.FloatField(blank=True, default=0)
     scale_factor = models.FloatField(blank=True, default=1)
     unit = models.CharField(max_length=64, blank=True, default='')
+    delta = models.BooleanField(blank=True, default=False)
+    priority = models.IntegerField(blank=True, default=0)
 
     def __str__(self):
         return self.name
@@ -21,22 +23,46 @@ class Slot(models.Model):
         if self.data().exists():
             obj = self.data().order_by('-time')[0]
             if obj.time.timestamp() + 3600 > time.time():
-                return "%.2f" % (obj.value * self.scale_factor, )
+                if self.delta:
+                    try:
+                        last_obj = self.data().order_by('-time')[1]
+                        return round((obj.value - last_obj.value) * self.scale_factor / (obj.time.timestamp() - last_obj.time.timestamp()), 3)
+                    except IndexError:
+                        return '--'
+                else:
+                    return round(obj.value * self.scale_factor, 3)
             else:
                 return '--'
         else:
             return '--'
 
+    def process(self, data):
+        if self.delta:
+            last = None
+            last_time = 0
+            ret = []
+            for d in data.values_list('time', 'value'):
+                if last is not None and d[1] >= last:
+                    ret.append([d[0].timestamp(), (d[1] - last) / (d[0].timestamp()-last_time)])
+                last = d[1]
+                last_time = d[0].timestamp()
+            return ret
+        else:
+            return [[values[0].timestamp(), values[1]] for values in data.values_list('time', 'value')]
+
     def full_data(self):
-        return [[values[0].timestamp(), values[1]] for values in self.data().values_list('time', 'value')]
+        return self.process(self.data())
 
     def less_data(self):
-        return [[values[0].timestamp(), values[1]] for values in self.data().filter(
+        return self.process(self.data().filter(
             time__gt=datetime.datetime.fromtimestamp(time.time()-3600)
-        ).values_list('time', 'value')]
+        ))
 
     def max_time(self):
         return '%.3f' % time.time()
+
+    class Meta:
+        ordering = ['-priority']
 
 
 class Data(models.Model):

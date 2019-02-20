@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.views import generic
-import time, datetime
+import time
 from .models import LogTime
 import datetime
 import threading as td
@@ -72,6 +72,9 @@ class Index(generic.View):
 
 def up(request):
     global sys_state, update_time, heartbeat_time
-    heartbeat_time = time.time()
-    update_sys_state("up")
-    return HttpResponse("OK")
+    if sys_state != "shutting down":
+        heartbeat_time = time.time()
+        update_sys_state("up")
+        return HttpResponse("OK")
+    else:
+        return HttpResponse("Shutting down")

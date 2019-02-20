@@ -8,11 +8,10 @@
     <button type="submit" class="btn btn-outline-primary mr-3" onClick="cfm('power-on')">
         <i class="fa fa-power-off" aria-hidden="true"></i>
     </button>
-    {% endif %}
-    {% if state == "up" %}
+    {% elif state == "up" %}
     <div class="row">
     <a href="http://sstia.tech:18889" class="btn btn-outline-primary mr-3" target="_blank">
-        <i class="fa fa-link"></i>
+        <i class="fa fa-book"></i>
     </a>
     <button type="submit" class="btn btn-outline-primary mr-3" onClick="cfm('shutdown')">
         <i class="fa fa-power-off" aria-hidden="true"></i>
