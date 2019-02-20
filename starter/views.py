@@ -58,8 +58,8 @@ class Index(generic.View):
         if not request.user.is_authenticated:
             return HttpResponse('Not authenticated')
         global sys_state, update_time, heartbeat_time
-        if sys_state == "down":
-            update_sys_state("starting")
+        if sys_state == "down" or sys_state == "up":
+            update_sys_state("starting" if sys_state == "down" else "shutting down")
             heartbeat_time = time.time()
             import RPi.GPIO as GPIO
             GPIO.setmode(GPIO.BCM)

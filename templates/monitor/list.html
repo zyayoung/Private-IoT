@@ -3,6 +3,8 @@
 <table class="table">
 <thead>
 <th>Slot</th>
+<th>Value</th>
+<th>Plot (1 Hour)</th>
 </thead>
 <tbody>
 {% for slot in slots %}
@@ -12,9 +14,54 @@
             {{ slot }}
         </a>
     </td>
+<td>{{ slot.latest_value }} {{ slot.unit }}</td>
+<td>
+<div id="id_slot{{ forloop.counter }}" style="height: 80px; width: 40vw;"></div>
+</td>
 </tr>
 {% endfor %}
 </tbody>
 </table>
 <a class="btn btn-outline-primary" href="{% url 'admin:monitor_slot_add' %}">Add</a>
+{% endblock %}
+{% block script %}
+
+{% for slot in slots %}
+<script>
+var data = {{ slot.less_data|safe }};
+data.forEach(function (node) {
+   node[0]*=1000;
+   node[1]*={{ slot.scale_factor }};
+});
+var option = {
+    grid: {
+        left: 60,
+        right: 0,
+        top: 10,
+        bottom: 10
+    },
+    xAxis: {
+        show: false,
+        type: 'time',
+        max: {{ slot.max_time }} * 1000
+    },
+    yAxis: {
+        type: 'value',
+        splitLine: {
+            show: false,
+        },
+        min: {% if slot.auto_range %}'dataMin'{% else %}{{ slot.min }} * {{ slot.scale_factor }}{% endif %},
+        max: {% if slot.auto_range %}'dataMax'{% else %}{{ slot.max }} * {{ slot.scale_factor }}{% endif %}
+    },
+    series: [{
+        type: 'line',
+        showSymbol: false,
+        hoverAnimation: false,
+        data: data
+    }]
+};
+var c = echarts.init(document.getElementById("id_slot{{ forloop.counter }}"));
+c.setOption(option);
+</script>
+{% endfor %}
 {% endblock %}

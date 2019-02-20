@@ -1,5 +1,6 @@
 from django.db import models
 import time
+import datetime
 
 
 class Slot(models.Model):
@@ -16,11 +17,23 @@ class Slot(models.Model):
     def data(self):
         return Data.objects.filter(slot=self)
 
+    def latest_value(self):
+        if self.data().exists():
+            obj = self.data().order_by('-time')[0]
+            if obj.time.timestamp() + 3600 > time.time():
+                return "%.2f" % (obj.value * self.scale_factor, )
+            else:
+                return '--'
+        else:
+            return '--'
+
     def full_data(self):
-        data = []
-        for value in self.data():
-            data.append(['%.3f' % value.time.timestamp(), value.value])
-        return data
+        return [[values[0].timestamp(), values[1]] for values in self.data().values_list('time', 'value')]
+
+    def less_data(self):
+        return [[values[0].timestamp(), values[1]] for values in self.data().filter(
+            time__gt=datetime.datetime.fromtimestamp(time.time()-3600)
+        ).values_list('time', 'value')]
 
     def max_time(self):
         return '%.3f' % time.time()
