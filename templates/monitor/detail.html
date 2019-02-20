@@ -32,10 +32,12 @@
 var data = {{ slot.full_data|safe }};
 data.forEach(function (node) {
    node[0]*=1000;
+   node[1]*={{ slot.scale_factor }};
 });
 option = {
     title: {
-        text: '{{ slot }}'
+        text: '{{ slot }}',
+        subtext: '{{ slot.unit }}'
     },
     tooltip: {
         trigger: 'axis',
@@ -52,10 +54,8 @@ option = {
     },
     yAxis: {
         type: 'value',
-        boundaryGap: [0, '100%'],
-        splitLine: {
-            show: false
-        }
+        min: {% if slot.auto_range %}'dataMin'{% else %}{{ slot.min }} * {{ slot.scale_factor }}{% endif %},
+        max: {% if slot.auto_range %}'dataMax'{% else %}{{ slot.max }} * {{ slot.scale_factor }}{% endif %}
     },
     dataZoom: [{
         type: 'inside',

@@ -3,3 +3,4 @@ from .models import *
 
 
 admin.site.register(Slot)
+admin.site.register(Data)
