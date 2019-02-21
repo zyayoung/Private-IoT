@@ -43,7 +43,8 @@ var option = {
     xAxis: {
         show: false,
         type: 'time',
-        max: {{ slot.max_time }} * 1000
+        min: ({{ slot.max_time }} - 3600) * 1000,
+        max: ({{ slot.max_time }}) * 1000
     },
     yAxis: {
         type: 'value',
@@ -55,7 +56,6 @@ var option = {
     },
     series: [{
         type: 'line',
-        showSymbol: false,
         hoverAnimation: false,
         data: data
     }]

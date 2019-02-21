@@ -37,18 +37,19 @@ class Slot(models.Model):
             return '--'
 
     def process(self, data):
+        jump = max(1, data.count()//1000)
         if self.delta:
             last = None
             last_time = 0
             ret = []
-            for d in data.values_list('time', 'value'):
+            for d in data.values_list('time', 'value')[::jump]:
                 if last is not None and d[1] >= last:
                     ret.append([d[0].timestamp(), (d[1] - last) / (d[0].timestamp()-last_time)])
                 last = d[1]
                 last_time = d[0].timestamp()
             return ret
         else:
-            return [[values[0].timestamp(), values[1]] for values in data.values_list('time', 'value')]
+            return [[values[0].timestamp(), values[1]] for values in data.values_list('time', 'value')[::jump]]
 
     def full_data(self):
         return self.process(self.data())
