@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import generic
 import time
-from .models import LogTime
+from .models import LogTime, AutoShutdownThreshold
 import datetime
 import threading as td
 import os
@@ -38,6 +38,14 @@ def check_up(wait=0):
 def check_daemon():
     while True:
         check_up(60)
+        if sys_state == "up" and AutoShutdownThreshold.objects.exists():
+            # Auto Shutdown
+            shutdown_now = []
+            for threshold in AutoShutdownThreshold.objects.all():
+                shutdown_now.append(threshold.shutdown())
+            if shutdown_now and False not in shutdown_now:
+                update_sys_state("shutting down")
+                print("Auto shutdown")
 
 
 check_t = td.Thread(target=check_daemon, daemon=True)

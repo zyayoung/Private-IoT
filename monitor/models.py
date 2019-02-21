@@ -53,9 +53,9 @@ class Slot(models.Model):
     def full_data(self):
         return self.process(self.data())
 
-    def less_data(self):
+    def less_data(self, seconds=3600):
         return self.process(self.data().filter(
-            time__gt=datetime.datetime.fromtimestamp(time.time()-3600)
+            time__gt=datetime.datetime.fromtimestamp(time.time()-seconds)
         ))
 
     def max_time(self):

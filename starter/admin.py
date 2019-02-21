@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import LogTime
+from .models import LogTime, AutoShutdownThreshold
 
 
 class LogTimeAdmin(admin.ModelAdmin):
@@ -8,4 +8,9 @@ class LogTimeAdmin(admin.ModelAdmin):
     date_hierarchy = 'to'
 
 
+class AutoShutdownThresholdAdmin(admin.ModelAdmin):
+    list_display = ('slot', 'value', 'hold_seconds', 'shutdown')
+
+
 admin.site.register(LogTime, LogTimeAdmin)
+admin.site.register(AutoShutdownThreshold, AutoShutdownThresholdAdmin)
