@@ -38,7 +38,7 @@ def check_up(wait=0):
 def check_daemon():
     while True:
         check_up(60)
-        if sys_state == "up" and AutoShutdownThreshold.objects.exists():
+        if sys_state == "up" and time.time() - update_time > 600 and AutoShutdownThreshold.objects.exists():
             # Auto Shutdown
             shutdown_now = []
             for threshold in AutoShutdownThreshold.objects.all():
@@ -68,14 +68,15 @@ class Index(generic.View):
             return HttpResponse('Not authenticated')
         global sys_state, update_time, heartbeat_time
         if sys_state == "down" or sys_state == "up":
+            if sys_state == "down":
+                import RPi.GPIO as GPIO
+                GPIO.setmode(GPIO.BCM)
+                GPIO.setup(18, GPIO.OUT, initial=GPIO.LOW)
+                GPIO.output(18, GPIO.HIGH)
+                time.sleep(0.8)
+                GPIO.output(18, GPIO.LOW)
             update_sys_state("starting" if sys_state == "down" else "shutting down")
             heartbeat_time = time.time()
-            import RPi.GPIO as GPIO
-            GPIO.setmode(GPIO.BCM)
-            GPIO.setup(18, GPIO.OUT, initial=GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            time.sleep(0.8)
-            GPIO.output(18, GPIO.LOW)
         return redirect('starter:index')
 
 

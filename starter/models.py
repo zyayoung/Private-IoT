@@ -19,7 +19,7 @@ class AutoShutdownThreshold(models.Model):
 
     def shutdown(self):
         data = self.slot.less_data(self.hold_seconds)
-        if not data:
+        if len(data) < self.hold_seconds * 0.8 / 60:
             return False
         shutdown_now = True
         for t, v in data:
