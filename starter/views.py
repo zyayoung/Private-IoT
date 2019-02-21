@@ -5,6 +5,7 @@ import time
 from .models import LogTime
 import datetime
 import threading as td
+import os
 
 sys_state = "down"
 update_time = time.time()
@@ -78,3 +79,7 @@ def up(request):
         return HttpResponse("OK")
     else:
         return HttpResponse("Shutting down")
+
+
+def ip(request):
+    return HttpResponse(os.popen("hostname -I").read())
