@@ -10,6 +10,7 @@ import os
 sys_state = "down"
 update_time = time.time()
 heartbeat_time = 0
+locked = False
 
 
 def update_sys_state(state):
@@ -38,7 +39,8 @@ def check_up(wait=0):
 def check_daemon():
     while True:
         check_up(60)
-        if sys_state == "up" and time.time() - update_time > 600 and AutoShutdownThreshold.objects.exists():
+        global locked
+        if locked == False and sys_state == "up" and time.time() - update_time > 600 and AutoShutdownThreshold.objects.exists():
             # Auto Shutdown
             shutdown_now = []
             for threshold in AutoShutdownThreshold.objects.all():
@@ -54,13 +56,14 @@ check_t.start()
 
 class Index(generic.View):
     def get(self, request):
-        global sys_state, update_time, heartbeat_time
+        global sys_state, update_time, heartbeat_time, locked
 
         # Update sys state
         check_up()
 
         state = sys_state
         last_update_passed = 1000 * (time.time() - update_time)
+        locked_local = locked
         return render(request, 'index.html', locals())
 
     def post(self, request):
@@ -88,6 +91,18 @@ def up(request):
         return HttpResponse("OK")
     else:
         return HttpResponse("Shutting down")
+
+
+def lock(request):
+    global locked
+    locked = True
+    return redirect('starter:index')
+
+
+def unlock(request):
+    global locked
+    locked = False
+    return redirect('starter:index')
 
 
 def ip(request):

@@ -13,6 +13,15 @@
     <a href="http://sstia.tech:18889" class="btn btn-outline-primary mr-3" target="_blank">
         <i class="fa fa-book"></i>
     </a>
+    {% if not locked_local %}
+    <a title="System is unlocked now." href="{% url 'starter:lock' %}" class="btn btn-outline-primary mr-3" target="_blank">
+        <i class="fa fa-unlock"></i>
+    </a>
+    {% else %}
+    <a title="System is locked now." href="{% url 'starter:unlock' %}" class="btn btn-outline-primary mr-3" target="_blank">
+        <i class="fa fa-lock"></i>
+    </a>
+    {% endif %}
     <button type="submit" class="btn btn-outline-primary mr-3" onClick="cfm('shutdown')">
         <i class="fa fa-power-off" aria-hidden="true"></i>
     </button>
