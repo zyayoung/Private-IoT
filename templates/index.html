@@ -14,11 +14,11 @@
         <i class="fa fa-book"></i>
     </a>
     {% if not locked_local %}
-    <a title="System is unlocked now." href="{% url 'starter:lock' %}" class="btn btn-outline-primary mr-3" target="_blank">
+    <a title="System is unlocked now." href="{% url 'starter:lock' %}" class="btn btn-outline-primary mr-3">
         <i class="fa fa-unlock"></i>
     </a>
     {% else %}
-    <a title="System is locked now." href="{% url 'starter:unlock' %}" class="btn btn-outline-primary mr-3" target="_blank">
+    <a title="System is locked now." href="{% url 'starter:unlock' %}" class="btn btn-outline-primary mr-3">
         <i class="fa fa-lock"></i>
     </a>
     {% endif %}
